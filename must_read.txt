@@ -1,0 +1,11 @@
+# Cập nhật hệ thống
+sudo apt update && sudo apt upgrade -y
+
+# Tải gói .deb mới nhất
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+
+# Cài đặt
+sudo dpkg -i cloudflared-linux-amd64.deb
+
+# Kiểm tra
+cloudflared --version

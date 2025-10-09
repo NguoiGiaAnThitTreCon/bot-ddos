@@ -11,8 +11,8 @@ from threading import Thread
 import re
 
 # === CONFIG ===
-TOKEN = "MTQxNzc5ODk2MjEzNTY5OTUyNg.GcXkLs.Mj_wZZhdi92qBJ11qpgaXoIhzHYI-ekcgRoHpM"
-GUILD_ID = 1410915527991230476
+TOKEN = "MTQxNzc5ODk2MjEzNTY5OTUyNg.GqsHnd.xfiXBoAVY-5jQAG-zQiGCn8voh8cjMADHqIU4s"
+GUILD_ID = [1410915527991230476, 1401951809114738770]
 OWNER_ID = 970327824915365949
 AGENT_FILE = "agents.txt"
 WEBHOOK_URL = "https://discord.com/api/webhooks/1424394508170432605/yxCAWri8WWPG-VnX2iux1zoZFup3NFTGRizxnv_1hLv9EQdwGZFqHrCUvlNci3sNOhOM"  # Thay bằng webhook của bạn
@@ -67,7 +67,7 @@ def register():
     aid = str(uuid.uuid4())
     agents[aid] = domain
     save_agents()
-    send_webhook(f"🟢 **Agent mới đăng ký:** {domain}\nTổng số: {len(agents)}")
+    send_webhook(f"🟢 **Agent mới đăng ký:** Tổng số: {len(agents)}")
     return jsonify({"status": "ok"})
 
 
@@ -114,13 +114,13 @@ async def broadcast(endpoint: str, params: dict = None):
                 try:
                     async with session.get(url, params=params, timeout=6) as resp:
                         if resp.status == 200:
-                            return f"{domain}: ✅ OK"
+                            return f": ✅ OK"
                         else:
                             dead_agents.append(domain)
-                            return f"{domain}: ⚠️ HTTP {resp.status}"
+                            return f": ⚠️ HTTP {resp.status}"
                 except Exception as e:
                     dead_agents.append(domain)
-                    return f"{domain}: ❌ {e}"
+                    return f": ❌ {e}"
 
             tasks.append(do_get(aid, domain, url))
         results = await asyncio.gather(*tasks)
@@ -141,7 +141,7 @@ async def broadcast(endpoint: str, params: dict = None):
 # === COMMANDS ===
 
 # 👑 /add_admin (chỉ Owner)
-@bot.tree.command(name="add_admin", description="Owner thêm admin mới", guild=discord.Object(id=GUILD_ID))
+@bot.tree.command(name="add_admin", description="Owner thêm new admin", guild=discord.Object(id=GUILD_ID))
 async def add_admin(interaction: discord.Interaction, user_id: str):
     if not is_owner(interaction):
         await interaction.response.send_message("❌ Bạn không có quyền dùng lệnh này.", ephemeral=True)
@@ -154,7 +154,7 @@ async def add_admin(interaction: discord.Interaction, user_id: str):
 
 
 # 🛡️ /add_agent (admin + owner)
-@bot.tree.command(name="add_agent", description="Thêm agent thủ công", guild=discord.Object(id=GUILD_ID))
+@bot.tree.command(name="add_agent", description="Thêm agent", guild=discord.Object(id=GUILD_ID))
 async def add_agent(interaction: discord.Interaction, url: str):
     if not is_admin(interaction):
         await interaction.response.send_message("❌ Bạn không có quyền thêm agent.", ephemeral=True)
@@ -166,8 +166,8 @@ async def add_agent(interaction: discord.Interaction, url: str):
 
     agents[str(uuid.uuid4())] = url
     save_agents()
-    send_webhook(f"🟢 **Agent mới được thêm thủ công:** {url}\nTổng số: {len(agents)}")
-    await interaction.response.send_message(f"✅ Đã thêm agent: `{url}`")
+    send_webhook(f"🟢 **Agent mới được thêm thủ công:** Tổng số: {len(agents)}")
+    await interaction.response.send_message(f"✅ Đã thêm agent ")
 
 
 # 🛡️ /agents (admin + owner)
@@ -180,13 +180,13 @@ async def agents_cmd(interaction: discord.Interaction):
     results = []
     for aid, domain in agents.items():
         try:
-            r = requests.get(f"{domain}/ping", timeout=3)
+            r = requests.get(f"{domain}=/ping", timeout=3)
             if r.status_code == 200:
-                results.append(f"{domain} ✅ Alive")
+                results.append(f" ✅ Alive")
             else:
-                results.append(f"{domain} ⚠️ HTTP {r.status_code}")
+                results.append(f"⚠️ HTTP {r.status_code}")
         except:
-            results.append(f"{domain} ❌ Dead")
+            results.append(f" ❌ Dead")
 
     if not results:
         await interaction.response.send_message("Không có agent nào.", ephemeral=True)
@@ -195,22 +195,22 @@ async def agents_cmd(interaction: discord.Interaction):
 
 
 # 👤 /run1 (mọi người)
-@bot.tree.command(name="run1", description="Chạy ./run 1 <url>", guild=discord.Object(id=GUILD_ID))
+@bot.tree.command(name="run1", description="lệnh ./run 1 <url> ko nên dùng ", guild=discord.Object(id=GUILD_ID))
 async def run1(interaction: discord.Interaction, url: str):
     await handle_run(interaction, "/run1", url)
 
 
 # 👤 /run2 (mọi người)
-@bot.tree.command(name="run2", description="Chạy ./run 2 <url>", guild=discord.Object(id=GUILD_ID))
+@bot.tree.command(name="run2", description="lệnh ./run 2 <url> nên dùng", guild=discord.Object(id=GUILD_ID))
 async def run2(interaction: discord.Interaction, url: str):
     await handle_run(interaction, "/run2", url)
 
 
 # 👤 /stop (mọi người)
-@bot.tree.command(name="stop", description="Dừng tất cả agents đang chạy", guild=discord.Object(id=GUILD_ID))
+@bot.tree.command(name="stop", description="Dừng lệnh run", guild=discord.Object(id=GUILD_ID))
 async def stop(interaction: discord.Interaction):
     results = await broadcast("/stop")
-    await interaction.response.send_message("🛑 Đã gửi lệnh dừng:\n" + "\n".join(results))
+    await interaction.response.send_message("🛑 Đã dừng".join(results))
     run_state.update({
         "is_running": False,
         "user": None,
@@ -228,7 +228,7 @@ async def handle_run(interaction, endpoint, url):
 
     if run_state["is_running"]:
         await interaction.response.send_message(
-            f"❌ Đang có người chạy: **{run_state['user'].name}** "
+            f"❌ Đang có người dùng: **{run_state['user'].name}** "
             f"(còn {run_state['seconds_left']}s)", ephemeral=True
         )
         return
